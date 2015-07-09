@@ -15,8 +15,11 @@ public class VRaptorRequest {
 	}
 
 	public String pathParam(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) request.getAttribute(name);
+	}
+
+	public void addAttribute(String key, String value) {
+		request.setAttribute(key, value);
 	}
 
 }

@@ -7,26 +7,47 @@ import java.util.List;
 import java.util.Optional;
 
 import br.com.caelum.vraptorlight.http.HttpMethod;
-import br.com.caelum.vraptorlight.output.*;
-import br.com.caelum.vraptorlight.processor.*;
+import br.com.caelum.vraptorlight.output.CustomOutput;
+import br.com.caelum.vraptorlight.output.FixedOutput;
+import br.com.caelum.vraptorlight.output.RequestResponseOutput;
+import br.com.caelum.vraptorlight.processor.CustomOutputProcessor;
+import br.com.caelum.vraptorlight.processor.FixedOutputProcessor;
+import br.com.caelum.vraptorlight.processor.RequestResponseProcessor;
 
 public abstract class Application {
 
 	private final List<UriPattern> mappedUris = new ArrayList<>();
+	private final UriFactory uriFactory = new UriFactory();
 	
 	protected abstract void setup();
 	
 	public void process(String path, HttpMethod method, VRaptorRequest req, VRaptorResponse res) {
+		//TODO: merge this method with searchAllowedUrisFor?
 		List<UriPattern> mappedUris = searchMappedUrisFor(path);
 		if(mappedUris.isEmpty()) {
 			throw new RuntimeException("404");
 		}
 		Optional<UriPattern> uri = searchAllowedUrisFor(method, mappedUris);
 		if(uri.isPresent()) {
-			uri.get().getAction().process(req, res);
+			UriPattern uriPattern = uri.get();
+			if (isParameterizedUri(uriPattern)) {
+				addPathParameters(path, req, uriPattern);
+			}
+			uriPattern.getAction().process(req, res);
 		} else {
 			throw new RuntimeException("This path isn't allowed for method " + method);
 		}
+	}
+
+	private void addPathParameters(String path, VRaptorRequest req, UriPattern uri) {
+		ParameterizedUri paramUri = (ParameterizedUri) uri;
+		paramUri.getPathParameters(path).entrySet().stream().forEach(e -> {
+			req.addAttribute(e.getKey(), e.getValue());
+		});
+	}
+
+	private boolean isParameterizedUri(UriPattern uriPattern) {
+		return ParameterizedUri.class.isAssignableFrom(uriPattern.getClass());
 	}
 
 	private Optional<UriPattern> searchAllowedUrisFor(HttpMethod httpMethod,
@@ -36,11 +57,12 @@ public abstract class Application {
 	}
 
 	private List<UriPattern> searchMappedUrisFor(String path) {
+		//TODO: check for conflicts, ambiguous route, etc 
 		return mappedUris.stream().filter(p -> p.answers(path)).collect(toList());
 	}
 	
 	private void get(String uriPattern, Action processor) {
-		mappedUris.add(new FixedUri(HttpMethod.GET, uriPattern, processor));
+		mappedUris.add(uriFactory.uriFor(HttpMethod.GET, uriPattern, processor));
 	}
 	
 	protected void get(String uriPattern, FixedOutput output) {
@@ -58,7 +80,7 @@ public abstract class Application {
 	}
 	
 	private void post(String uriPattern, Action processor) {
-		mappedUris.add(new FixedUri(HttpMethod.POST, uriPattern, processor));
+		mappedUris.add(uriFactory.uriFor(HttpMethod.POST, uriPattern, processor));
 	}
 	
 	protected void post(String uriPattern, FixedOutput output) {
