@@ -7,4 +7,5 @@ public interface UriPattern {
 	boolean answers(String path);
 	boolean allows(HttpMethod httpMethod);
 	Action getAction();
+	public abstract String getUri();
 }
