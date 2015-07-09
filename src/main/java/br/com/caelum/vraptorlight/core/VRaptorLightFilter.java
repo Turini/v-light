@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import br.com.caelum.vraptorlight.http.HttpMethod;
 import br.com.caelum.vraptorlight.sample.HelloWorldApplication;
+import br.com.caelum.vraptorlight.sample.ProjetoAnalytics;
 
 @WebFilter("/*")
 public class VRaptorLightFilter implements Filter {
@@ -17,7 +18,8 @@ public class VRaptorLightFilter implements Filter {
 
 	public void init(FilterConfig fConfig) throws ServletException {
 		// TODO instnaciar de maneira magica
-		this.app = new HelloWorldApplication();
+//		this.app = new HelloWorldApplication();
+		this.app = new ProjetoAnalytics();
 		app.setup();
 	}
 

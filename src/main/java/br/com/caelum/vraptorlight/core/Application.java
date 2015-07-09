@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import br.com.caelum.vraptorlight.http.HttpMethod;
 import br.com.caelum.vraptorlight.output.CustomOutput;
@@ -13,6 +14,9 @@ import br.com.caelum.vraptorlight.output.RequestResponseOutput;
 import br.com.caelum.vraptorlight.processor.CustomOutputProcessor;
 import br.com.caelum.vraptorlight.processor.FixedOutputProcessor;
 import br.com.caelum.vraptorlight.processor.RequestResponseProcessor;
+import br.com.caelum.vraptorlight.sample.Analytics;
+import br.com.caelum.vraptorlight.sample.AnalyzeController;
+import br.com.caelum.vraptorlight.sample.ProdutoController;
 
 public abstract class Application {
 
@@ -96,4 +100,19 @@ public abstract class Application {
 	protected void post(String uriPattern, CustomOutput output) {
 		post(uriPattern, new CustomOutputProcessor(output));
 	}
+
+	
+	
+	
+	
+	
+	
+	//TODO daqui pra frente é teste
+	
+	protected void get(String uriPattern, Function<AnalyzeController, String> func, Analytics analytics) {
+		get(uriPattern, new FunctionProcessor(func, analytics));
+	}
+//	protected void get(String uriPattern, Function<ProdutoController, String> func) {
+//		get(uriPattern, new FunctionProcessor(func));
+//	}
 }
