@@ -1,5 +1,6 @@
 package br.com.caelum.vraptorlight.sample;
 
+import static java.lang.String.format;
 import br.com.caelum.vraptorlight.core.Application;
 
 
@@ -30,9 +31,16 @@ public class HelloWorldApplication extends Application {
 		
 		post("/postMethod", () -> "Hello World");
 		
-//		get("/path/param/{id}", (req, res) -> {
-//			return "Path param is " + req.pathParam("id");
-//		});
+		get("/path/param/{id}", (req, res) -> {
+			return "Path param is " + req.pathParam("id");
+		});
+		
+		get("/path/param/{a}/{b}/{c}", (req, res) -> {
+			String a = req.pathParam("a");
+			String b = req.pathParam("b");
+			String c = req.pathParam("c");
+			return format("Path param a: %s, b: %s, c:%s", a, b, c);
+		});
 	
 	}
 }
