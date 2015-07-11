@@ -1,5 +1,6 @@
 package br.com.caelum.vraptorlight.core;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import br.com.caelum.vraptorlight.processor.FixedOutputProcessor;
 import br.com.caelum.vraptorlight.processor.RequestResponseProcessor;
 import br.com.caelum.vraptorlight.sample.Analytics;
 import br.com.caelum.vraptorlight.sample.AnalyzeController;
-import br.com.caelum.vraptorlight.sample.ProdutoController;
 
 public abstract class Application {
 
@@ -30,6 +30,10 @@ public abstract class Application {
 		List<UriPattern> mappedUris = searchMappedUrisFor(path);
 		if(mappedUris.isEmpty()) {
 			throw new RuntimeException("404");
+		} 
+		if(mappedUris.size() > 1){
+			String routes = mappedUris.stream().map(UriPattern::getUri).collect(joining(","));
+			throw new RuntimeException("Found ambiguity between routes: " + routes);
 		}
 		Optional<UriPattern> uri = searchAllowedUrisFor(method, mappedUris);
 		if(uri.isPresent()) {
@@ -56,12 +60,10 @@ public abstract class Application {
 
 	private Optional<UriPattern> searchAllowedUrisFor(HttpMethod httpMethod,
 			List<UriPattern> mappedUris) {
-		//TODO: check for conflicts, ambiguous route, etc 
 		return mappedUris.stream().filter(uri -> uri.allows(httpMethod)).findFirst();
 	}
 
 	private List<UriPattern> searchMappedUrisFor(String path) {
-		//TODO: check for conflicts, ambiguous route, etc 
 		return mappedUris.stream().filter(p -> p.answers(path)).collect(toList());
 	}
 	
