@@ -1,5 +1,7 @@
 package br.com.caelum.vraptorlight.core;
 
+import static java.util.regex.Pattern.compile;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -21,8 +23,20 @@ public class ParameterizedUri implements UriPattern {
 
 	@Override
 	public boolean answers(String path) {
-		// TODO: improve this rule
-		return hasSameLenght(uri, path);
+		if (!hasSameLenght(uri, path)) return false;
+		
+		String[] splitedUri = uri.split("/");
+		String[] splitedPath = path.split("/");
+		
+		for (int i = 0; i < splitedUri.length; i++) {
+			String a = splitedUri[i];
+			String b = splitedPath[i];
+			if (compile("\\{(.*?)\\}").matcher(a).find()) {
+				continue;
+			}
+			if (!a.equals(b)) return false;
+		}
+		return true;
 	}
 	
 	private boolean hasSameLenght(String uri, String path) {
