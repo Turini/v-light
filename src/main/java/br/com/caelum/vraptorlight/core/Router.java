@@ -17,7 +17,7 @@ public class Router {
 		if(uris.isEmpty()) {
 			throw new RuntimeException("404");
 		} 
-		if(uris.size() > 1){
+		if(uris.stream().filter(u -> u.allows(method)).count() > 1){
 			String routes = uris.stream().map(UriPattern::getUri).collect(joining(","));
 			throw new RuntimeException("Found ambiguity between routes: " + routes);
 		}
